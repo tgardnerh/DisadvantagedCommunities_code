@@ -16,14 +16,7 @@ capture log close
 **		20170522 - Compute highest CES2.0 score for each zip code and assign to containing census tracts
 **			Save a file of largest CES2.0 scores by zip code
 ***************************************
-clear all
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-global DisComm "$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-global MapData "$Dropbox/Erich_Dave_Projects/Data/mapfiles"
-global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community designation in CA (related to EFMP)"
 
 log using "${DisComm}/Log/load_disadvantaged_status.txt", text replace
 

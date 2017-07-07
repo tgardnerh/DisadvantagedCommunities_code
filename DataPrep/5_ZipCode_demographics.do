@@ -7,15 +7,8 @@ capture log close
 ** REVISION HISTORY:
 **	20170522 - Zero left padded census tract FIPS
 ***************************************
-clear all
+clear 
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-*global Dropbox "c:\Users\Jim\Dropbox"
-global DisComm "${Dropbox}/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community designation in CA (related to EFMP)"
-global MapFiles "${Dropbox}/Erich_Dave_Projects/Data/mapfiles"
 
 log using "${DisComm}/Log/ZipCode_demographics", text replace
 

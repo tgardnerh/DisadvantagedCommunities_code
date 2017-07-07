@@ -7,16 +7,8 @@ capture log close
 ** commuinity
 **
 ***************************************
-clear all
+clear
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-*global Dropbox "c:\Users\Jim\Dropbox"
-global DisComm "${Dropbox}/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-global CVRPData "${Dropbox}/Erich_Dave_Projects/Data/CVRP Incentives"
-global CVRPDate 20170418
-do "${DisComm}/Code/Code_Globals.do"
 
 log using "${DisComm}/Log/combine_cvrp_disadvantaged_status", text replace
 

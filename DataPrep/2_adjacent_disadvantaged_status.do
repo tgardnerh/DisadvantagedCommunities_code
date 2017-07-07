@@ -7,14 +7,8 @@ capture log close
 **	REVISION HISTORY:
 **	20170522 - Read text file in as strings instead of doubles+tostring
 ***************************************
-clear all
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-global DisComm "$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-global MapData "$Dropbox/Erich_Dave_Projects/Data/mapfiles"
-global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community designation in CA (related to EFMP)"
+clear
 
 log using "${DisComm}/Log/adjacent_disadvantaged_status.txt", text replace
 
