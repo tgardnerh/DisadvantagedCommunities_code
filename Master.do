@@ -20,7 +20,7 @@ global CVRPDate 20170418
 
 
 **Version setting
-global ResultsVersion 20170418
+global ResultsVersion 20170710
 
 
 
