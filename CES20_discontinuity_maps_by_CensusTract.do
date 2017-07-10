@@ -5,17 +5,8 @@ capture log close
 ** Create some summary stats of rebates across the CES20 percentile discontinuity
 **
 ***************************************
-clear all
+clear 
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-*global Dropbox "C:\Users\Jim\Dropbox"
-global DisComm "${Dropbox}/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-
-do "${DisComm}/Code/Code_Globals.do"
-
-log using "${DisComm}/Log/CES20_discontinuity_maps.txt", text replace
 
 ***********************************
 ** The code here converts a Census TIGER file 
@@ -33,9 +24,9 @@ use "${DisComm}/Data/CensusTractsAdjacentDisadvantagedStatus.dta", clear
 **Merge in geoIDs for mapping. The Tract FIPS were read in with the State FIPS
 **at the start reading "6". We need to prepend a zero to match the "06" in the 
 **geodata database
-gen GEOID10 = "0" + CensusTract
+gen GEOID10 =  CensusTract
 merge 1:1 GEOID10 using "${DisComm}/Data/CA_CensusTract_db", ///
-	keep(master match) assert(match using) keepusing(ID INTPTLAT10 INTPTLON10) nogen
+	keep(master match) assert(match using) keepusing(ID INTPTLAT10 INTPTLON10)  nogen
 
 **Keep the centroid lat/longs too. It will make it easy to filter 
 **maps by location
@@ -210,7 +201,6 @@ spmap AboveBelowThreshold using "${DisComm}/Data/CA_CensusTract_coord" ///
 graph export "${DisComm}/ResultsOut/${ResultsVersion}/Graphs/CES20_Discontinuity/AboveBelow_CensusTract_Sacramento.png", replace
 
 
-log close
 
 
 

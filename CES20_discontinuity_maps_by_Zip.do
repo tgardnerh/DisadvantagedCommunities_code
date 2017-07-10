@@ -5,15 +5,9 @@ capture log close
 ** Create some summary stats of rebates across the CES20 percentile discontinuity
 **
 ***************************************
-clear all
+clear 
 version 14.2
-set more off
 
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-*global Dropbox "C:\Users\Jim\Dropbox"
-global DisComm "${Dropbox}/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-
-do "${DisComm}/Code/Code_Globals.do"
 
 log using "${DisComm}/Log/CES20_discontinuity_maps_by_Zip.txt", text replace
 

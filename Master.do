@@ -37,3 +37,15 @@ do ${DisCommCode}/DataPrep/5_ZipCode_demographics
 do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs_graphs
 
 do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs
+**Summary stats
+do ${DisCommCode}/cvrp_summary_stats.do
+do ${DisCommCode}/Border_discontinuity_summstats.do
+
+
+**Discontinutity stats
+do ${DisCommCode}/cvrp_CES20_discontinuity_stats.do
+do ${DisCommCode}/cvrp_CES20_discontinuity_stats_by_zip.do
+**Disc. maps
+do ${DisCommCode}/CES20_discontinuity_maps_by_Zip.do
+do ${DisCommCode}/CES20_discontinuity_maps_by_CensusTract.do
+

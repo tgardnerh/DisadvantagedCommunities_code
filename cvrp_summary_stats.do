@@ -5,15 +5,8 @@ capture log close
 ** Create some summary stats of rebates across the discontinuity
 **
 ***************************************
-clear all
+clear 
 version 14.2
-set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-*global Dropbox "C:\Users\Jim\Dropbox"
-global DisComm "${Dropbox}/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-
-do "${DisComm}/Code/Code_Globals.do"
 
 log using "${DisComm}/Log/cvrp_summary_stats.txt", text replace
 
