@@ -34,5 +34,6 @@ do ${DisCommCode}/DataPrep/5_ZipCode_demographics
 
 
 **Power Calcs
+do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs_graphs
 
 do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs
