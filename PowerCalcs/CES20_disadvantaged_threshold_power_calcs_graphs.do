@@ -9,14 +9,9 @@ capture log close
 **	REVISION HISTORY - 
 **		20170522 - File created
 ***************************************
-clear all
+clear
 version 14.2
 set more off
-
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-global DisComm "$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-
-global ResultsVersion 20170418
 
 log using "${DisComm}/Log/power_calc_graphs.txt", text replace
 

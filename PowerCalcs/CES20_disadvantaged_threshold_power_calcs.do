@@ -9,11 +9,9 @@ capture log close
 **	REVISION HISTORY - 
 **		20170522 - File created
 ***************************************
-clear all
+clear 
 version 14.2
-set more off
 
-global Dropbox "I:\Personal Files\Jim\Dropbox"
 global DisComm "$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
 global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community designation in CA (related to EFMP)"
 
@@ -29,6 +27,7 @@ use "${DisComm}/Data/DisadvantagedCensusTracts.dta"
 ** errorvariance() is the variance in the unobserved error term
 ** The intent is you run this program with "simulate" to perform power and size calcs
 *********************************
+capture program drop SimRD
 program define SimRD, rclass
 	syntax varname(numeric) [if] [in], [effectsize(real 0) errorvariance(real 1) c(real 0)]
 	
