@@ -1,26 +1,50 @@
-DealerState,DealerCity,DealerZipCode,DealerName
-CA,Albany,94706,Albany Ford
-CA,Alhambra,91801,Bob Wondries Ford
-CA,Arroyo Grande,93420,Mullahey Ford
-CA,Auburn,95603,Auburn Ford
-CA,Bakersfield,93301,Jim Burke Ford
-CA,Barstow,92311,Mohave Ford of Barstow
-CA,Bishop,93514,Bishop Ford
-CA,Blythe,92225,Larry Green Ford
-CA,Brentwood,94513,Bill Brandt Ford
-CA,Buellton,93427,Jim Vreeland Ford
-CA,Buena Park,90621,Ken Grody Ford
-CA,Calexico,92231,Robinson Ford Sales
-CA,Carlsbad,92008,Ken Grody Ford
-CA,Cathedral City,92234,Palm Springs Ford-Lincoln
-CA,Ceres,95307,Country Ford Trucks
-CA,Cerritos,90703,Norm Reeves Ford Lincoln
-CA,Chico,95928,Ed Wittmeir Ford Lincoln
-CA,Chino,91710,Chino Hills Ford
-CA,Chula Vista,91911,Fuller Ford
-CA,Clovis ,93612,Future Ford of Clovis
-CA,Colma,94014,Serramonte Ford
-CA,Colusa,95932,Hoblit Motors
-CA,Concord,94520,Future Ford Lincoln of Concord
-CA,Corning,96021,Corning Ford
-CA,Costa Mesa,92627,Theodore Robins Inc
+DealerMake,DealerState,DealerCity,DealerZipCode,DealerName
+Ford,CA,Albany,94706,Albany Ford
+Ford,CA,Alhambra,91801,Bob Wondries Ford
+Ford,CA,Arroyo Grande,93420,Mullahey Ford
+Ford,CA,Auburn,95603,Auburn Ford
+Ford,CA,Bakersfield,93301,Jim Burke Ford
+Ford,CA,Barstow,92311,Mohave Ford of Barstow
+Ford,CA,Bishop,93514,Bishop Ford
+Ford,CA,Blythe,92225,Larry Green Ford
+Ford,CA,Brentwood,94513,Bill Brandt Ford
+Ford,CA,Buellton,93427,Jim Vreeland Ford
+Ford,CA,Buena Park,90621,Ken Grody Ford
+Ford,CA,Calexico,92231,Robinson Ford Sales
+Ford,CA,Carlsbad,92008,Ken Grody Ford
+Ford,CA,Cathedral City,92234,Palm Springs Ford-Lincoln
+Ford,CA,Ceres,95307,Country Ford Trucks
+Ford,CA,Cerritos,90703,Norm Reeves Ford Lincoln
+Ford,CA,Chico,95928,Ed Wittmeir Ford Lincoln
+Ford,CA,Chino,91710,Chino Hills Ford
+Ford,CA,Chula Vista,91911,Fuller Ford
+Ford,CA,Clovis ,93612,Future Ford of Clovis
+Ford,CA,Colma,94014,Serramonte Ford
+Ford,CA,Colusa,95932,Hoblit Motors
+Ford,CA,Concord,94520,Future Ford Lincoln of Concord
+Ford,CA,Corning,96021,Corning Ford
+Ford,CA,Costa Mesa,92627,Theodore Robins Inc
+Toyota,CA,Albany,94710,Toyota of Berkeley Certified Service Center
+Toyota,CA,Alhambra,91801,Wondries Toyota
+Toyota,CA,Antioch,94509,Antioch Toyota
+Toyota,CA,Anaheim,92801,Miller Toyota of Anaheim
+Toyota,CA,Bakersfield,93313,Bill Wright Toyota
+Toyota,CA,Bakersfield,93308,North Bakersfield Toyota
+Toyota,CA,Barstow,92311,Mojave Toyota of Barstow
+Toyota,CA,Berkeley,94704,Toyota of Berkeley
+Toyota,CA,Auburn,95603,Auburn Toyota
+Toyota,CA,Buena Park,90621,AutoNation Toyota Buena Park
+Toyota,CA,Burlingame,94010,Putnam Toyota
+Toyota,CA,Capitola,95010,Toyota of Capitola
+Toyota,CA,Carlsbad,92008,Toyota Carlsbad
+Toyota,CA,Carson,90745,Carson Toyota
+Toyota,CA,Cathedral City,92234,Toyota of the Desert
+Toyota,CA,Cerritos,90703,AutoNation Toyota Cerritos
+Toyota,CA,Chico,95926,Chuck Patterson Toyota Dodge
+Toyota,CA,Chula Vista,91911,Toyota Chula Vista
+Toyota,CA,City of Industry,91791,Punte Hills Toyota
+Toyota,CA,Claremont,91711,Claremont Toyota
+Toyota,CA,Clovis ,93612,Toyota of Clovis
+Toyota,CA,Concord,94520,Concord Toyota
+Toyota,CA,Costa Mesa,92627,South Coast Toytoa
+Toyota,CA,Culver City,90232,Culver City Toyota
