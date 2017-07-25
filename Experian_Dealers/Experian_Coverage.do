@@ -1,5 +1,4 @@
 
-//Markdown and CSS setup
 <<dd_include: header.txt >>
 
 
@@ -115,6 +114,9 @@
 <</dd_do>>
 
 #Establishment coverage
+Notes on the dealership coverage within Experian provided data, as compared to County Business Patterns data.
+
+Prepared by Tyler Hoppenfeld
 
 ##Executive Summary
 ###Definition of "Establishment"
@@ -183,7 +185,8 @@ To approach from a slightly different direction, I estimated:
 While we cannot know with certianty what is happening here, it would appear that each dealer in the Experian data has a counterpart in the CBP data (the coefficient of <<dd_display: %4.2f `C_E_Beta_zeros'>>  in equation 4 ), but each dealer in the CBP data has about a 50-50 chance of having a corresponding value in the Experian data (the coefficient of  <<dd_display: %4.2f `E_C_Beta_zeros'>> in equation 3).
 
 The suspicion that the Experian data is a subsample of the CBP data is further bolstered by the small total number of transactions.  For comparison, [Ford alone sold](http://shareholder.ford.com/~/media/Files/F/Ford-IR/events-and-presentations/2017/07-03-17-June-Sales/ford-china-sales.pdf) aproximately 100,000 cars in June 2017, as compared the <<dd_display: %12.0gc `total_experian_transactions'>> used and new transactions reported in the Experian data over a period of several years.
-lastline
+
+
 
 
 
