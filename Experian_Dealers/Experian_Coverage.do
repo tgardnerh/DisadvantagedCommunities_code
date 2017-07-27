@@ -185,6 +185,23 @@ I matched the zipcodes of those dealerships against the Experian dataset of Chev
     
   
   
+###In Table Form
+
+ Make         |Chevrolet |Ford | Toyota | Honda| Nissan|
+:--------------|-----:|----------:|--------:|------:|-------:|
+Experian USA Count |<<dd_display: %12.0gc `CHEVROLETDealers'>>|<<dd_display: %12.0gc `FORDDealers'>>|<<dd_display: %12.0gc `TOYOTADealers'>>|<<dd_display: %12.0gc `HONDADealers'>>|<<dd_display: %12.0gc `NISSANDealers'>>|
+USA Count (external)|3,000|3,089|1,233|805|187|
+*Subsamples*:||||||
+**True Count** |<<dd_display: %12.0gc `CHEVROLETCount_man'>>|<<dd_display: %12.0gc `FORDCount_man'>>|<<dd_display: %12.0gc `TOYOTACount_man'>>|<<dd_display: %12.0gc `HONDACount_man'>>|<<dd_display: %12.0gc `NISSANCount_man'>>|
+**Matched**|<<dd_display: %12.0gc `CHEVROLETmatched_dealers'>>|<<dd_display: %12.0gc `FORDmatched_dealers'>>|<<dd_display: %12.0gc `TOYOTAmatched_dealers'>>|<<dd_display: %12.0gc `HONDAmatched_dealers'>>|<<dd_display: %12.0gc `NISSANmatched_dealers'>>|
+Experian Count|<<dd_display: %12.0gc `FilteredCHEVROLETDealers'>>|<<dd_display: %12.0gc `FilteredFORDDealers'>>|<<dd_display: %12.0gc `FilteredTOYOTADealers'>>|<<dd_display: %12.0gc `FilteredHONDADealers'>>|<<dd_display: %12.0gc `FilteredNISSANDealers'>>|
+Joined Count|<<dd_display: %12.0gc `JoinedCHEVROLETCount'>>|<<dd_display: %12.0gc `JoinedFORDCount'>>|<<dd_display: %12.0gc `JoinedTOYOTACount'>>|<<dd_display: %12.0gc `JoinedHONDACount'>>|<<dd_display: %12.0gc `JoinedNISSANCount'>>|
+Zip Match|<<dd_display: %12.0gc `CHEVROLETzip_match_only'>>|<<dd_display: %12.0gc `FORDzip_match_only'>>|<<dd_display: %12.0gc `TOYOTAzip_match_only'>>|<<dd_display: %12.0gc `HONDAzip_match_only'>>|<<dd_display: %12.0gc `NISSANzip_match_only'>>|
+Experian Only|<<dd_display: %12.0gc `CHEVROLET_exp_only'>>|<<dd_display: %12.0gc `FORD_exp_only'>>|<<dd_display: %12.0gc `TOYOTA_exp_only'>>|<<dd_display: %12.0gc `HONDA_exp_only'>>|<<dd_display: %12.0gc `NISSAN_exp_only'>>|
+Outside Only|<<dd_display: %12.0gc `CHEVROLET_man_only'>> |<<dd_display: %12.0gc `FORD_man_only'>>|<<dd_display: %12.0gc `TOYOTA_man_only'>>|<<dd_display: %12.0gc `HONDA_man_only'>>|<<dd_display: %12.0gc `NISSAN_man_only'>>|
+Outside Dealer List |[Autospies.com](http://www.autospies.com/dealers/Chevrolet/California/)|[Ford](http://content.dealerconnection.com/vfs/brands/us/ca_ford_en.html)|[Toyota](https://www.toyota.com/dealers/California/all-city/)|[Autospies.com](http://www.autospies.com/dealers/Honda/California/)|[Autospies.com](http://www.autospies.com/dealers/Nissan/California/)|
+External count source| [CNN](http://money.cnn.com/2009/05/15/news/companies/gm_dealers/?postversion=2009051509)|[aggdata](https://www.aggdata.com/aggdata/complete-list-ford-motor-company-dealer)|[Toyota](https://www.toyota.com/about/images/operations/numbers/TMOB0166_2013_LARGE_BROCHURE_WEB_USE_tiled2.pdf)|[Wikipedia](https://en.wikipedia.org/wiki/American_Honda_Motor_Company)|[Nissan](https://en.wikipedia.org/wiki/American_Nissan_Motor_Company)|
+
 ##Discussion
 It is strange that, at least in the case of Ford, Honda, and Toyota, externally available dealership counts suggest that the Experian coverage is only about 50%, however a semi-random sample of dealerships in the state shows that the Experian coverage is quite complete for California. I do not quite know what to make of this, except to suggest that perhaps the dealership counts in the outside sources are inflated, or the dealership coverage in the Experian data is much weaker outside of California.
 
