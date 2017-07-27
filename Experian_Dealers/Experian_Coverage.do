@@ -2,9 +2,10 @@
 <<dd_include: header.txt >>
 
 
-<<dd_do:  >>
+<<dd_do: qui >>
+	pause on
 	//Set locals  
-	local DealerMakes  NISSAN FORD  TOYOTA HONDA  //CHEVROLET //
+	local DealerMakes CHEVROLET NISSAN FORD  TOYOTA HONDA 
 	local FORD_first_letters "A", "B", "C"
 	local TOYOTA_first_letters "A", "B", "C"
 	local HONDA_first_letters "A", "B", "C"
@@ -71,7 +72,9 @@
 		//Summary Stat
 		count
 		local `make'Count_man = `r(N)'
-		merge 1:m DealerZipCode using ``make'DealersList'
+		joinby DealerZipCode using ``make'DealersList', unmatched(both)
+		assert inlist(_merge, "only in master data":__MERGE, "only in using data":__MERGE, "both in master and using data":__MERGE)
+		
 
 		generate NameMatch = .
 		order NameMatch DealerName*
@@ -82,14 +85,25 @@
 		//Bring in hand-categorized dealer list
 		import delimited using "${ExperianCode}/`make'merge_list_after.csv", clear case(preserve) stringcols(_all)
 		destring NameMatch, replace
+		replace NameMatch = 0 if NameMatch != 1
+		
+		//Check to make sure that there is no zip code with >1 dealer name in BOTH data sets
+		// Conceptually this isn't an important restriction, but it makes the code a lot 
+		// more straightforward
+		bysort DealerZipCode DealerName : gen EXPNameN = _N
+		bysort DealerZipCode DealerName_man  : gen manNameN = _N
+		assert !(manNameN > 1 & EXPNameN > 1)
+		drop manNameN EXPNameN
+
 		//The number of rows here is  *almost* an exact count of the dealers, except for 
 		// an edge-case that does not currently exist, but I want to catch it here, since it
 		// will inevitably come up
 		preserve
-			bysort DealerZipCode: egen flag = min(NameMatch != 1 & _merge == "matched (3)")
+			bysort DealerZipCode: egen flag = min(NameMatch != 1 & _merge == "both in master and using data)")
 			collapse flag, by(DealerZipCode)
 			sum flag
 			local dealer_count_correction = `r(sum)'
+			di `dealer_count_correction'
 		restore
 
 		//joined dealer counts
@@ -98,13 +112,13 @@
 		count if NameMatch == 1
 		local `make'matched_dealers = `r(N)'
 
-		count if NameMatch != 1 & _merge == "matched (3)"
+		count if NameMatch != 1 & inlist(_merge , "both in master and using data" , "matched (3)")
 		local `make'zip_match_only = `r(N)'
 
-		count if _merge == "using only (2)"
+		count if inlist(_merge , "only in using data" ,"using only (2)")
 		local `make'_exp_only = `r(N)' + `dealer_count_correction'
 
-		count if _merge == "master only (1)"
+		count if inlist(_merge , "only in master data", "master only (1)")
 		local `make'_man_only = `r(N)' + `dealer_count_correction'
 	}
 <</dd_do>>
@@ -159,6 +173,17 @@ However, a convenience sample of <<dd_display: %12.0gc `NISSANCount_man'>> Nissa
 I matched the zipcodes of those dealerships against the Experian dataset of Nissan dealerships in California cities beginning with the letters A, B, or C (<<dd_display: %12.0gc `FilteredNISSANDealers'>> dealers, after removing duplicates).  This yielded a combined list of <<dd_display: %12.0gc `JoinedNISSANCount'>> dealers.  
   Of these dealerships, <<dd_display: %12.0gc `NISSANmatched_dealers'>> had a clear name and zipcode match in the Experian data, <<dd_display: %12.0gc `NISSANzip_match_only'>> had a corresponding Experian-recorded Nissan dealership in the same zip-code, but with a different name, <<dd_display: %12.0gc `NISSAN_man_only'>> from the third-party website had no corresponding dealership in the Experian data, and <<dd_display: %12.0gc `NISSAN_exp_only'>> from the Experian data had no match on the third-party website.
     
+  
+###Chevrolet Dealers
+####Summary Statistics
+The Experian Data includes <<dd_display: %12.0gc `CHEVROLETDealers'>> new car dealerships with  "Chevrolet" in the name, but these are located in only `CHEVROLETDealerZips' zip codes. [This news report](http://money.cnn.com/2009/05/15/news/companies/gm_dealers/?postversion=2009051509) suggests that there are aproximately 3,000 Chevrolet branded dealerships in the USA.
+
+####Data Matchup
+However, a convenience sample of <<dd_display: %12.0gc `CHEVROLETCount_man'>> Chevrolet dealerships drawn from [Autospies.com](http://www.autospies.com/dealers/Chevrolet/California/) (all dealers located in a California city starting with the letters A, B, or C), has a much better match with the Experian list.
+I matched the zipcodes of those dealerships against the Experian dataset of Chevrolet dealerships in California cities beginning with the letters A, B, or C (<<dd_display: %12.0gc `FilteredCHEVROLETDealers'>> dealers, after removing duplicates).  This yielded a combined list of <<dd_display: %12.0gc `JoinedCHEVROLETCount'>> dealers.  
+  Of these dealerships, <<dd_display: %12.0gc `CHEVROLETmatched_dealers'>> had a clear name and zipcode match in the Experian data, <<dd_display: %12.0gc `CHEVROLETzip_match_only'>> had a corresponding Experian-recorded Chevrolet dealership in the same zip-code, but with a different name, <<dd_display: %12.0gc `CHEVROLET_man_only'>> from the third-party website had no corresponding dealership in the Experian data, and <<dd_display: %12.0gc `CHEVROLET_exp_only'>> from the Experian data had no match on the third-party website.
+    
+  
   
 ##Discussion
 It is strange that, at least in the case of Ford, Honda, and Toyota, externally available dealership counts suggest that the Experian coverage is only about 50%, however a semi-random sample of dealerships in the state shows that the Experian coverage is quite complete for California. I do not quite know what to make of this, except to suggest that perhaps the dealership counts in the outside sources are inflated, or the dealership coverage in the Experian data is much weaker outside of California.

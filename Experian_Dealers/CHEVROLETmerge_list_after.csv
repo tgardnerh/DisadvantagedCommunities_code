@@ -1,0 +1,34 @@
+NameMatch,DealerName,DealerName_man,DealerZipCode,_merge,DealerCity,DealerState
+,BUNNIN CHEVROLET,Albertson Chevrolet,90230,both in master and using data,CULVER CITY,CA
+1,BUNNIN CHEVROLET,Bunnin Chevrolet,90230,both in master and using data,CULVER CITY,CA
+,BUNNIN CHEVROLET,Hooman Chevrolet,90230,both in master and using data,CULVER CITY,CA
+,PENSKE CHEVROLET OF BUENA PARK,Premier Chevrolet of Buena Park,90621,both in master and using data,BUENA PARK,CA
+1,PREMIER CHEVROLET OF BUENA,Premier Chevrolet of Buena Park,90621,both in master and using data,BUENA PARK,CA
+1,PENSKE CHEVROLET OF CERRITOS,Penske Chevrolet,90703,both in master and using data,CERRITOS,CA
+1,GEORGE CHEVROLET,George Chevrolet,90706,both in master and using data,BELLFLOWER,CA
+,,Win Chevrolet,90810,only in master data,,
+1,COMMUNITY CHEVROLET CO,Community Chevrolet,91502,both in master and using data,BURBANK,CA
+1,M K SMITH CHEVROLET INC,MK Smith Chevrolet,91710,both in master and using data,CHINO,CA
+,RICHARD HIBBARD CHEVROLET INC,,91711,only in using data,CLAREMONT,CA
+1,SAGE COVINA CHEVROLET,Sage Covina Chevrolet,91723,both in master and using data,COVINA,CA
+,LEO HOFFMAN CHEVROLET INC,Punte Hills Chevrolet,91748,both in master and using data,CITY OF INDUSTRY,CA
+1,WESELOH CHEVROLET,Weseloh Chevrolet,92008,both in master and using data,CARLSBAD,CA
+1,DIAMOND HILLS CHEVROLET/BUICK/ PONTIAC/GMC,Diamond Hills Auto Grou,92220,both in master and using data,BANNING,CA
+,,Larry Green Chevrolet,92225,only in master data,,
+,,Jessup Auto Plaza,92234,only in master data,,
+1,CONNELL CHEVROLET,Connell Chevrolet,92626,both in master and using data,COSTA MESA,CA
+1,RICHARDS CHEVROLET BUICK INC,Richard's Chevrolet,93212,both in master and using data,CORCORAN,CA
+1,THREE WAY CHEVROLET CADILLAC,Three-way Chevrolet,93313,both in master and using data,BAKERSFIELD,CA
+1,ARROYO GRANDE CHEVROLET,Arroyo Grande Chevrolet,93420,both in master and using data,ARROYO GRANDE,CA
+,CHRISTIANSON CHEVROLET /OLDSMOBILE,Arroyo Grande Chevrolet,93420,both in master and using data,ARROYO GRANDE,CA
+1,RIO VISTA CHEVROLET,Rio Vista Chevrolet,93427,both in master and using data,BUELLTON,CA
+1,STEVES CHEVROLET OF CHOWCHILLA LLC,Steves Chevrolet of Chowchilla,93610,both in master and using data,CHOWCHILLA,CA
+1,HEDRICKS CHEVROLET,Hedrick's Chevrolet,93612,both in master and using data,CLOVIS,CA
+1,HEDRICKS HALLOWELL CHEVROLET,Hedrick's Chevrolet,93612,both in master and using data,CLOVIS,CA
+1,PUTNAM CHEVROLET CADILLAC,Putname Chevrolet Cadillac,94010,both in master and using data,BURLINGAME,CA
+1,STEWART CHEVROLET/CADILLAC,Steward Chevrolet Cadillac,94014,both in master and using data,COLMA,CA
+1,CONCORD CHEVROLET,Concord Chevrolet,94520,both in master and using data,CONCORD,CA
+,,Gold Rush Chevrolet,95603,only in master data,,
+1,WINNER CHEVROLET,Winner Chevrolet,95713,both in master and using data,COLFAX,CA
+1,WITTMEIER CHEVROLET,Wittmeier Chevrolet,95928,both in master and using data,CHICO,CA
+1,CARSTENS CHEVROLET INC DBA CARSTENS MOTORS INC,Carstens Chevrolet Buic,96101,both in master and using data,ALTURAS,CA
