@@ -68,6 +68,6 @@ if `Disadvantaged_Communities' == 1 {
 if `Experian_Old_Data' == 1 {
 	do ${ExperianCode}/experian_readin
 	do ${ExperianCode}/CBP_readin
-	dyndoc ${ExperianCode}/Experian_Coverage.do, saving("$WorkingDirs/Tyler/Experian_Coverage.html") replace
+	dyndoc ${ExperianCode}/Experian_Coverage.do, saving("$WorkingDirs/Tyler/Experian_Coverage_restrictedv2.html") replace
 }
 

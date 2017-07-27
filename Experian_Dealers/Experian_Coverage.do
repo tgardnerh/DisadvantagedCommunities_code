@@ -2,11 +2,14 @@
 <<dd_include: header.txt >>
 
 
-<<dd_do:  quietly>>
+<<dd_do:  >>
 	//Set locals  
-	local DealerMakes FORD  TOYOTA
+	local DealerMakes  NISSAN FORD  TOYOTA HONDA  //CHEVROLET //
 	local FORD_first_letters "A", "B", "C"
 	local TOYOTA_first_letters "A", "B", "C"
+	local HONDA_first_letters "A", "B", "C"
+	local NISSAN_first_letters  "A", "B", "C"
+	local CHEVROLET_first_letters  "A", "B", "C"
 	local fake_FORD_dealers "WEATHERFORD BMW"
 	local fake_TOYOTA_dealers
 
@@ -28,6 +31,8 @@
 			keep if strpos(DealerName, "`make'") 	& !inlist(DealerName, "`fake_`make'_dealers'")
 			count
 			local `make'Dealers = `r(N)'
+			unique DealerZipCode
+			local `make'DealerZips = `r(N)'
 		
 			keep if inlist(substr(DealerCity, 1, 1), "``make'_first_letters'") & DealerState == "CA"
 
@@ -38,9 +43,8 @@
 			generate duplicate = .
 			sort DealerZipCode DealerName
 			order duplicate
-			export delimited using "${WorkingDirs}/Tyler/`make'_Experian_before.csv", replace
-		
-		
+			export delimited using "${WorkingDirs}/Tyler/`make'_Experian_before.csv", replace		
+			save "$WorkingDirs/Tyler/temp", replace
 			//merge in de-duplicated work
 			import delimited using "${ExperianCode}/`make'_Experian_after.csv", clear case(preserve) stringcol(_all)
 			destring duplicate, replace
@@ -137,10 +141,30 @@ I matched the zipcodes of those dealerships against the Experian dataset of Toyo
   
   It is notable that in two cases, a distinctive and similar name appears in both the "Experian Only" and the "Website Only" set of dealers, suggesting a zip-code entry error, or a dealership that has moved.  If this is the case, the Toyota sample would have near perfect coverage in the experian data.
 
+###Honda Dealers
+####Summary Statistics
+The Experian Data includes <<dd_display: %12.0gc `HONDADealers'>> new car dealerships with  "Honda" in the name. [Wikipedia](https://en.wikipedia.org/wiki/American_Honda_Motor_Company) gives the number of American Honda dealers as 805.
 
+####Data Matchup
+However, a convenience sample of <<dd_display: %12.0gc `HONDACount_man'>> Honda dealerships drawn from [Autospies.com](http://www.autospies.com/dealers/Honda/California/) (all dealers located in a California city starting with the letters A, B, or C), has a much better match with the Experian list.
+I matched the zipcodes of those dealerships against the Experian dataset of Honda dealerships in California cities beginning with the letters A, B, or C (<<dd_display: %12.0gc `FilteredHONDADealers'>> dealers, after removing duplicates).  This yielded a combined list of <<dd_display: %12.0gc `JoinedHONDACount'>> dealers.  
+  Of these dealerships, <<dd_display: %12.0gc `HONDAmatched_dealers'>> had a clear name and zipcode match in the Experian data, <<dd_display: %12.0gc `HONDAzip_match_only'>> had a corresponding Experian-recorded Honda dealership in the same zip-code, but with a different name, <<dd_display: %12.0gc `HONDA_man_only'>> from the third-party website had no corresponding dealership in the Experian data, and <<dd_display: %12.0gc `HONDA_exp_only'>> from the Experian data had no match on the third-party website.
+
+###Nissan Dealers
+####Summary Statistics
+The Experian Data includes <<dd_display: %12.0gc `NISSANDealers'>> new car dealerships with  "Nissan" in the name, but these are located in only `NISSANDealerZips' zip codes. [Nissan](https://en.wikipedia.org/wiki/American_Nissan_Motor_Company) reports that they have 187 dealerships in the USA.
+
+####Data Matchup
+However, a convenience sample of <<dd_display: %12.0gc `NISSANCount_man'>> Nissan dealerships drawn from [Autospies.com](http://www.autospies.com/dealers/Nissan/California/) (all dealers located in a California city starting with the letters A, B, or C), has a much better match with the Experian list.
+I matched the zipcodes of those dealerships against the Experian dataset of Nissan dealerships in California cities beginning with the letters A, B, or C (<<dd_display: %12.0gc `FilteredNISSANDealers'>> dealers, after removing duplicates).  This yielded a combined list of <<dd_display: %12.0gc `JoinedNISSANCount'>> dealers.  
+  Of these dealerships, <<dd_display: %12.0gc `NISSANmatched_dealers'>> had a clear name and zipcode match in the Experian data, <<dd_display: %12.0gc `NISSANzip_match_only'>> had a corresponding Experian-recorded Nissan dealership in the same zip-code, but with a different name, <<dd_display: %12.0gc `NISSAN_man_only'>> from the third-party website had no corresponding dealership in the Experian data, and <<dd_display: %12.0gc `NISSAN_exp_only'>> from the Experian data had no match on the third-party website.
+    
+  
 ##Discussion
-It is strange that, at least in the case of Ford and Toyota, externally available dealership counts suggest that the Experian coverage is only about 50%, however a semi-random sample of dealerships in the state shows that the Experian coverage is quite complete for California. I do not quite know what to make of this, except to suggest that perhaps the dealership counts in the outside sources are inflated, or the dealership coverage in the Experian data is much weaker outside of California.
+It is strange that, at least in the case of Ford, Honda, and Toyota, externally available dealership counts suggest that the Experian coverage is only about 50%, however a semi-random sample of dealerships in the state shows that the Experian coverage is quite complete for California. I do not quite know what to make of this, except to suggest that perhaps the dealership counts in the outside sources are inflated, or the dealership coverage in the Experian data is much weaker outside of California.
 
-I have stopped here because listing dealers from their website is a time consuming process and I want to give you a chance to assess whether this is the right track, before I invest the hours to extend this to Chevorle, Nissan, and Honda dealerships.  Additionally, for a published paper, we would of course , compile a complete list of California Dealerships, as opposed to a list of those dealerships located in cities beginning with the letters A, B, or C.  
+Additionally the situation is odd with Nissan--there are many dealerships of different names in the same zip code, and often at similar address.  In many cases this is clearly slopy record keeping (eg. "Lynn's Nissan" vs "Lynns Nissan"), but in many cases the names are distinct.  
+
+I have stopped here because listing dealers from their website is a time consuming process and I want to give you a chance to assess whether this is the right track, before I invest the hours to extend this to Chevrolet, Nissan, and Honda dealerships.  Additionally, for a published paper, we would of course , compile a complete list of California Dealerships, as opposed to a list of those dealerships located in cities beginning with the letters A, B, or C.  
 
 I estimate that extending to cover the remaining three makes that are heavily represented in the Experian data will take an additional 10 hours, and extending to cover all California dealers would then take an additional 20-30 hours of work.  
