@@ -72,3 +72,9 @@ if `Experian_Old_Data' == 1 {
 	dyndoc ${ExperianCode}/Experian_Coverage.do, saving("$WorkingDirs/Tyler/Experian_Coverage_restrictedv2.html") replace
 }
 
+
+if `Experian_New_Data' == 1 {
+//	do ${ExperianCode}/exp_cvg_setup.do
+	dyndoc ${ExperianCode}/Experian_Coverage_New.do, saving("$WorkingDirs/Tyler/New_Experian_analysis.html") replace
+}
+
