@@ -3,9 +3,8 @@ set more off
 
 ***sub-part flags:
 
-local Disadvantaged_Communities			1
-local Experian_Old_Data					1
-
+local Disadvantaged_Communities			0
+local Experian_Old_Data					0
 local Experian_New_Data					1
 
 
@@ -23,10 +22,12 @@ else {
 	display in red "user `c(username)' is not in code!"
 	STOP
 }
-global WorkingDirs "${Dropbox}/Erich_Dave_Projects/WorkingDirectories"
-global DisComm "$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
-global MapData "$Dropbox/Erich_Dave_Projects/Data/mapfiles"
-global MapFiles "${Dropbox}/Erich_Dave_Projects/Data/mapfiles"
+global WorkingDirs 	"${Dropbox}/Erich_Dave_Projects/WorkingDirectories"
+global DisComm 		"$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
+global Data			"$Dropbox/Erich_Dave_Projects/Data"
+global MapData 		"$Data/mapfiles"
+global MapFiles 	"$Data/mapfiles"
+
 
 global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community designation in CA (related to EFMP)"
 global CVRPData "${Dropbox}/Erich_Dave_Projects/Data/CVRP Incentives"
@@ -74,7 +75,7 @@ if `Experian_Old_Data' == 1 {
 
 
 if `Experian_New_Data' == 1 {
-//	do ${ExperianCode}/exp_cvg_setup.do
+	do ${ExperianCode}/exp_cvg_setup.do
 	dyndoc ${ExperianCode}/Experian_Coverage_New.do, saving("$WorkingDirs/Tyler/New_Experian_analysis.html") replace
 }
 
