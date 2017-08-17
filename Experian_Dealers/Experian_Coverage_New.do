@@ -158,6 +158,12 @@ forvalues i = 1/2 {
 
 **********CVRP DATA MERGE
 
+import delimited "${Data}/mapfiles/overlapMatrix/CA_Census_Tracts_to_ZIP_codes_2010.txt", clear
+tostring v1 , format(%12.0f) generate(tract)
+tostring v2, generate(OwnerZipCode)
+drop v1 v2 v3
+save "$scratch/CensusZipMap", replace
+
 
 //Prep tract-level info
 import excel using "${Data}/CVRP Incentives/Data/Source/CVRPStats_20170418/CVRPStats.xlsx", clear firstrow
@@ -166,8 +172,24 @@ tostring ZIP, generate(OwnerZipCode)
 keep tract DACCensusTractFlag DACZIPCodeFlag OwnerZipCode 
 duplicates drop
 
+merge 1:1 OwnerZipCode tract using "$scratch/CensusZipMap", nogen
+
+//fill in the zip code flags that we know
+tempvar zipflag
+bysort OwnerZipCode : egen `zipflag' = mean(DACZIPCodeFlag )
+replace DACZIPCodeFlag = `zipflag' if missing(DACZIPCodeFlag)
+assert inlist( DACZIPCodeFlag, 1 , 0, .)
+
+//fill in the tract flags that we know
+tempvar tractflag
+bysort tract : egen `tractflag' = mean(DACCensusTractFlag )
+replace DACCensusTractFlag = `tractflag' if missing(DACCensusTractFlag)
+assert inlist( DACCensusTractFlag, 1 , 0, .)
+
+
 tempfile preCES
 save `preCES'
+save "$scratch/preCES", replace
 
 import excel using "${Data}/Disdvantaged Community designation in CA (related to EFMP)/CalEnviroScreen2_Scores_Full_Oct_2014.xlsx", clear firstrow
 rename ZIP CESZip
@@ -235,8 +257,24 @@ tostring OwnerCensusBlockGroup , format(%12.0f) generate(tract)
 replace tract = substr(tract, 1, 10)
 
 
+
 merge m:1 tract using `tractCES', keep(master match) assert(master match using) nogen
 merge m:1 OwnerZipCode using `maxCES', keep(master match) assert(master match using) nogen
+
+
+//Restrict to only EFMP eligible districts
+preserve
+	use "${Data}/mapfiles/Air Quality Districts/CensusTract_to_AQMD_map.dta", clear
+	keep if inlist( AQMD_ID, 24, 38)
+	keep CensusTract
+	rename CensusTract tract
+	replace tract = substr(tract, 2, 10)
+	duplicates drop
+	tempfile eligible_AQMD
+	save `eligible_AQMD'
+restore
+merge m:1 tract using `eligible_AQMD', keep(matched)
+
 
 keep if VehicleGroup == "GROUP 1 - ZEV" & inrange(MaxCES , 16.6,56.6) & PurchasePrice > 10000
 
@@ -258,6 +296,9 @@ binscatter PurchasePrice MaxCES , ///
 	
 
 
+
+
+
 gen Eligible = (MaxCES > 36.6)
 tempfile data_for_reg
 save `data_for_reg'
@@ -275,84 +316,29 @@ graph twoway bar Transaction_count MaxCES_rnd , ///
 	name("rd_density_plot")	
 <</dd_do>>
 ~~~~
-#Experian and CES RDD Groundwork
-This document begins to lay the groundwork for an RDD study using the Experian data and geocoded CES data.
+#Update to Experian and CES RDD Groundwork
+This document updates the prior effort to lay groundwork for the Experian/EFMP RD effort.  
+It only contains sections that have been updated since out August 9 meeting.
+
 Prepared by Tyler Hoppenfeld
 
 ##General Data Quality:
-###Repeats between datasets
-
-The data sets appear to be nearly fully disjoint, with very few transactions that appear 
-to be duplicated between them. <<dd_display: %12.0gc `NewCarOverlap'>> cars appear 
-as being sold new in both data sets, 
-and the records are non-identical (eg. different price, different sales date).  
-<<dd_display: %12.0gc `UsedCarOverlap'>> cars appear as being sold used in both data sets.
- However, the differing prices, sales dates, and mileages make it plausible that these are 
- the same car being sold again, as is common in the used car market.
-
 
 ###Sales Numbers
 Sales numbers appear to be volatile between model years.  They seem to be roughly comparable 
 between data sets, however I do not observe a clear time trend.  
 <<dd_graph: graphname(Leaf_sales) saving(leaf_sales.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Prius_sales) saving(prius_sales.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Volt_sales) saving(volt_sales.png) replace height(400) width(500) >>
-<<dd_graph: graphname(model_sales) saving(model_sales.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Civic_sales) saving(model_sales.png) replace height(400) width(500) >>
 
 
-###Price Trends
-The new data has <<dd_display: %12.0gc `NewDataCount'>> observed transactions, of 
-which <<dd_display: %12.0gc `NewinNewCount'>> are new sales, 
-and <<dd_display: %12.0gc `UsedinNewCount'>> are used 
-sales.  The new sales have a unimodal distribution with few outliers and an appropriate 
-median, however the used sales are bimodally distributed:  
-<<dd_graph: graphname(PriceUsedinNew) saving(PriceUsedinNew.png) replace height(400) width(500) >>
-
-Of the <<dd_display: %12.0gc `UsedinNewCount'>> used transactions in this 
-data, <<dd_display: %12.0gc `LowPriceUsedinNewCount'>> report a purchase price below $10,000.
-Among these low-priced transactions, the 90th percentile odometer reading is <<dd_display: %12.0gc `Odo90inLowPriceUsedinNew'>> and the 
-10th percentile model year is <<dd_display: %12.0gc `Year10inLowPriceUsedinNew'>>.  I conclude that these purchase prices do not reflect 
-the true value of the transaction, and I drop these observations for the remaining analysis. 
+Leaf sales appear particularly voloitile, which is consistant with the actual American sales numbers for that vehicle.  
+Wikipedia aggregates a variety of sources to give us the following US sales by year of sale (not vehicle model year).
 
 
-Excluding these few outliers, price trends are stable across data sets for a variety of cars 
-of interest.  These histograms are based on pooled used and new sales prices, but in practice 
-used transactions represent a small fraction of the data, so contribute little to the averages.  
-<<dd_graph: graphname(Leaf_prices) saving(leaf_prices.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Prius_prices) saving(prius_prices.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Volt_prices) saving(volt_prices.png) replace height(400) width(500) >>
-<<dd_graph: graphname(model_prices) saving(model_prices.png) replace height(400) width(500) >>
-<<dd_graph: graphname(Civic_prices) saving(model_prices.png) replace height(400) width(500) >>
+Year|	2015|	2014|	2013|	2012|	2011|	2010
+----|----|----|----|----|----|----|
+ US Leaf Sales |	17,269	|30,200|	22,610|	9,819	|9,674 |19
+ 
 
-
-##Census Block Group
-Owner's census Block Group is populated for all observations, and the values are distributed as we would expect:  
-90% of transactions are associated with a block group that has 50 or fewer transactions associated with it.
-
-
-##Make Composition
-
-###Zero Emission Vehicles (ZEV per Experian grouping)
-Among the ZEV transactions, several new Makes were added to the data:
-~~~~
-<<dd_do:nocommands>>
-use `group1', clear
-list
-<</dd_do>>
-~~~~
-
-
-###Non-ZEV Cars (per Experian grouping)
-Several new makes were added to the comparison group as well. In the old data, Mercedes-Benz
-and BMW were represented in the ZEV category, but not in the reference group.  
-This is not the case in the new data.
-~~~~
-<<dd_do:nocommands>>
-use `group2', clear
-list
-<</dd_do>>
-~~~~
 
 
 ##RD Design Studies
@@ -361,8 +347,10 @@ the most disadvantaged (highest CES score) Census Block in a Zip Code.  However,
 have transaction data at the Census Block level, we have CES data at the larger Census 
 Tract level, and DAC status data at the Zip and Tract level.  
 
+
 Tract level CES score perfectly predicts Tract level DAC status, as we can see here:  
 <<dd_graph: graphname(tractCESDAC) saving(tractCESDAC.png) replace height(400) width(500) >>
+
 
 CES scores at the Tract level generally predict whether the containing zip code will have 
 DAC status.  Few tracts with low CES scores fall into DAC Zip Codes, and nearly all tracts 
@@ -371,19 +359,26 @@ with a CES high enough to be a DAC tract are also in a DAC zip code:
 
 
 While the running variable  actually depends on the CES at the Census Block level, we can 
-approximate it using Census Tract level CES.  We would like to see a sharp discontinuity here,
-but instead we see a somewhat fuzzy one.  I assume this is because we do not have access to the
-actual variable in question, the CES at the Census Block level.  
+approximate it using Census Tract level CES.  Using Jim's mapping of zip to census-tract, 
+we see much improved behavior--there is a rather sharp cutoff at the location we expect.
+
 <<dd_graph: graphname(running_var) saving(running_var.png) replace height(400) width(500) >>
 
 If car buyers or dealers are able to affect their eligibility, that undermines the validity
-of the RD design.  To assess this, I present a density plot by the forcing variable:
+of the RD design.  To assess this, I present a density plot by the forcing variable in the San Joaquin and South Coast air
+quality districts, where the EFMP program was piloted.
+:
  <<dd_graph: graphname(rd_density_plot) saving(rd_density_plot.png) replace height(400) width(500) >>
 
 
+##RD Graphs and Regressions
+
+For these exercises, I have restricted the data to the San Joaquin and South Coast air
+quality districts, where the EFMP program was piloted.
+
 
 As a proof-of-concept, here are two binscatters of average purchase price against the forcing variable.
-One is with a control for the CES of the specific track, and one is without.  Both are
+One is with a control for the CES of the specific tract, and one is without.  Both are
  restricted to a bandwidth of 20 on either side of the RD threshold of 36.6.
  
  <<dd_graph: graphname(contRD) saving(contRD.png) replace height(400) width(500) >>
@@ -397,6 +392,8 @@ controls, with the same bandwidth and restrictions as the above plots. The dummy
 ~~~~
 <<dd_do:nocommands>>
 use `data_for_reg', clear
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
 regress PurchasePrice Eligible MaxCES
 <</dd_do>>
 ~~~~
@@ -409,16 +406,24 @@ regress PurchasePrice Eligible MaxCES CES20Score
 <</dd_do>>
 ~~~~
 
+Adding in Make/Model controlls
+~~~~
+<<dd_do:nocommands>>
 
-These results are statistically insignificant, but the point estimates suggest less than 
-100% pass-through.  Finally, I estimate the OLS version of these regressions. 
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code
+<</dd_do>>
+~~~~
+
+
+These results are borderline statistically significant, and suggest a non-zero pass 
+through, fully accounted for by choice of car make or model.  
+
+ Finally, I estimate the OLS version of these regressions. 
 The variable "Zip_Code_Elig" indicates whether the owner lives in a DAC zip code.
 
 ~~~~
 <<dd_do:nocommands>>
-use `data_for_reg', clear
-encode VehicleMake, generate( VehicleMake_code)
-encode VehicleModel, generate( VehicleModel_code)
+
 
 rename DACZIPCodeFlag Zip_Code_Elig
 regress PurchasePrice Zip_Code_Elig  MaxCES 
@@ -431,3 +436,11 @@ Using the a broader set of covariates:
 regress PurchasePrice Zip_Code_Elig  DACCensusTractFlag MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code
 <</dd_do>>
 ~~~~
+
+
+#CVRP vs Experian transaction overlap:
+I attempted to assess the overlap of the CVRP and Experian data, but the CVRP data that I see
+ does not include VIN, so any assessment will involve matching make, model, zip code, and a 
+ rough transaction date. I will attempt to do this, but it won't be as quick as I had hoped a 
+ VIN based match would be.
+
