@@ -2,6 +2,11 @@
 
 ~~~~
 <<dd_do: qui >>
+//Set Locals
+
+//Vehicle technologies
+local tech_1 `""Hybrid", "BEV", "PHEV""'
+local tech_2 `""Conventional", "OTHER""'
 
 //read in model clean-up directory
 import delimited using "${ExperianCode}/models_after.csv", clear case(preserve) stringcol(_all) varnames(1)

@@ -175,7 +175,39 @@ compress
 
 sort VIN PurchaseDate
 
+****************************
+** Fetch precise Vehicle Types
+****************************
+
+preserve
+
+	import delimited using "$Data/DataOne/Data/Source/20170516/DataOne_IDP_are_ucb.csv", case(preserve) clear
+	keep VIN_PATTERN FUEL_TYPE
+	duplicates drop
+	bysort VIN_PATTERN: keep if _N == 1
+	tempfile VinToFuel
+	save `VinToFuel'
+	save "$scratch/VinToFuel", replace
+
+	import delimited using "$scratch/VehicleType_Xwalk.csv", case(preserve) clear varnames(1)
+	keep EFMP_Tech_clean FUEL_TYPE
+	rename EFMP_Tech_clean Replacement_Vehicle_Tech
+	duplicates drop
+	tempfile TechXwalk
+	save `TechXwalk'
+	
+restore
+
+gen VIN_PATTERN = substr(VIN, 1, 8)
+replace VIN_PATTERN = VIN_PATTERN + substr(VIN, 10, 2)
+
+merge m:1 VIN_PATTERN using `VinToFuel', keep(master match) assert(master match using) nogen
+
+merge m:1 FUEL_TYPE using `TechXwalk', keep(master) nogen
+
 save "$WorkingDirs/Tyler/Experian", replace
+
+//import excel using "$Data/EFMP/EFMP_Data/QRY_WebsiteRawDataThru2017Q2.xlsx", clear firstrow
 
 log close
 
