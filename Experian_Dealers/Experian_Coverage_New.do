@@ -22,12 +22,27 @@ hist PurchasePrice if Source == "New Data"  & NewUsedIndicator == "N" & Purchase
 	note("new sales with a reported purchase price below $50,000") ///
 	name("PriceNewinNew")
 
+hist PurchasePrice if Source == "Backfill"  & NewUsedIndicator == "N" & PurchasePrice < 50000, ///
+	title("New Cars in Backfill Data") ///
+	xtitle("Reported Purchase Price") ///
+	ytitle("Density") ///
+	note("new sales with a reported purchase price below $50,000") ///
+	name("PriceNewinBackfill")
+
+
 hist PurchasePrice if Source == "New Data"  & NewUsedIndicator == "U" & PurchasePrice < 50000, ///
 	title("Used Cars in New Data") ///
 	xtitle("Reported Purchase Price") ///
 	ytitle("Density") ///
 	note("used sales with a reported purchase price below $50,000") ///
 	name("PriceUsedinNew")
+	
+hist PurchasePrice if Source == "Backfill"  & NewUsedIndicator == "U" & PurchasePrice < 50000, ///
+	title("Used Cars in Backfill Data") ///
+	xtitle("Reported Purchase Price") ///
+	ytitle("Density") ///
+	note("used sales with a reported purchase price below $50,000") ///
+	name("PriceUsedinBackfill")
 
 count if  Source == "New Data"  
 local NewDataCount = r(N)
@@ -37,6 +52,17 @@ local NewinNewCount = r(N)
 
 count if  Source == "New Data"  & NewUsedIndicator == "U"
 local UsedinNewCount = r(N)
+
+
+count if  Source == "Backfill"  
+local BackfillDataCount = r(N)
+
+count if  Source == "Backfill"  & NewUsedIndicator == "N"
+local NewinBackfillCount = r(N)
+
+count if  Source == "Backfill"  & NewUsedIndicator == "U"
+local UsedinBackfillCount = r(N)
+
 
 count if PurchasePrice  < 10000 &  Source == "New Data"  & NewUsedIndicator == "U"
 local LowPriceUsedinNewCount = r(N)
@@ -82,11 +108,11 @@ foreach car of local carlist {
 		//add to stack the bars
 		bysort VehicleYear : egen New_Data_stack = sum(NewCarsSold)
 		graph twoway ///
-			(bar  New_Data_stack VehicleYear if  Source == "New Data") ///
-			(bar  NewCarsSold VehicleYear if  Source == "Old Data") ///
+			(bar  New_Data_stack VehicleYear if  NewUsedIndicator == "N") ///
+			(bar  NewCarsSold VehicleYear if  NewUsedIndicator == "U") ///
 			,  ///
-			xtitle("Model Year") ytitle("New Vehicle Sales") ///
-			legend( label(1 "New Data") label( 2 "Old Data")) ///
+			xtitle("Model Year") ytitle("Vehicle Sales") ///
+			legend( label(1 "New Cars") label( 2 "Used Cars")) ///
 			title("CA `carname' Sales") name("`car'_sales", replace)
 
 
@@ -120,12 +146,12 @@ foreach car of local carlist {
 		generate VehicleYear_OffsetR = VehicleYear + .25
 		generate VehicleYear_OffsetL = VehicleYear - .25
 		graph twoway ///
-			(bar  PurchasePrice VehicleYear_OffsetR if  Source == "New Data", barwidth(.5)) ///
-			(bar  PurchasePrice VehicleYear_OffsetL if  Source == "Old Data", barwidth(.5) ) ///
+			(bar  PurchasePrice VehicleYear_OffsetR if  NewUsedIndicator == "N", barwidth(.5)) ///
+			(bar  PurchasePrice VehicleYear_OffsetL if  NewUsedIndicator == "U", barwidth(.5) ) ///
 			,  ///
 			yscale(range(0,)) ylabel(#5) ///
 			xtitle("Model Year") ytitle("Median Purchase Price") ///
-			legend( label(1 "New Data") label( 2 "Old Data")) ///
+			legend( label(1 "New Cars") label( 2 "Used Cars")) ///
 			title("CA `carname' Prices") name("`car'_prices", replace) ///
 			note("note that transaction prices < $`min_purchase_price' have been dropped")
 
