@@ -33,6 +33,9 @@ global DisStatus "$Dropbox/Erich_Dave_Projects/Data/Disdvantaged Community desig
 global CVRPData "${Dropbox}/Erich_Dave_Projects/Data/CVRP Incentives"
 global CVRPDate 20170418
 
+//add ados
+adopath + "$DisCommCode/CustomPrograms"
+
 
 **Version setting
 global ResultsVersion 20170710
