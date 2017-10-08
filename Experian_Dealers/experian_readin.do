@@ -156,6 +156,9 @@ preserve
 	
 	tostring PurchaseDate, replace
 	format_date PurchaseDate , format(YMD) replace
+	
+	//fix varnames
+	rename (Make Model) (VehicleMake VehicleModel)
 	//generate backfill flag
 	generate backfill_flag = 1
 	tempfile backfill
