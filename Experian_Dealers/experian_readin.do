@@ -141,11 +141,34 @@ drop readin_error Overflow
 *****************************
 ** Done fixing misread records
 *****************************
+***Destring some vars for append
+replace DealerZipCode = "" if DealerZipCode == "H4R3J"
+destring PurchasePrice VehicleYear OdometerReading Income ReportingPeriod DealerZipCode , replace
+destring OwnerZipCode, force replace
 
+***************************
+**Bring in used backfill
+***************************
+preserve
+	import delimited using "$Experian/Sep2017_22kUsedBackfill/UCDavis_Output_20170929.csv", clear case(preserve)
+	replace Income = "" if Income == "NULL"
+	destring Income, replace
+	
+	tostring PurchaseDate, replace
+	format_date PurchaseDate , format(YMD) replace
+	//generate backfill flag
+	generate backfill_flag = 1
+	tempfile backfill
+	save `backfill'
+restore
+
+generate backfill_flag = 0
+append using `backfill'
 
 **destring some vars
-destring PurchasePrice VehicleYear OdometerReading Income, replace
+
 **Age=="U" implies unknown. It can be missing. 
+replace Age = "" if Age == "NULL"
 destring Age, replace ignore("U")
 
 gen LeaseDum = LeaseIndicator=="L"
@@ -175,6 +198,7 @@ compress
 
 sort VIN PurchaseDate
 
+
 ****************************
 ** Fetch precise Vehicle Types
 ****************************
@@ -203,11 +227,9 @@ replace VIN_PATTERN = VIN_PATTERN + substr(VIN, 10, 2)
 
 merge m:1 VIN_PATTERN using `VinToFuel', keep(master match) assert(master match using) nogen
 
-merge m:1 FUEL_TYPE using `TechXwalk', keep(master) nogen
+merge m:1 FUEL_TYPE using `TechXwalk',  keep(match) nogen
 
 save "$WorkingDirs/Tyler/Experian", replace
-
-//import excel using "$Data/EFMP/EFMP_Data/QRY_WebsiteRawDataThru2017Q2.xlsx", clear firstrow
 
 log close
 
