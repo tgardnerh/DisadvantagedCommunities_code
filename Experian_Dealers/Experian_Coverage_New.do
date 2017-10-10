@@ -102,14 +102,14 @@ foreach car of local carlist {
 		}
 		gen flag = 1
 		keep if strpos(lower(VehicleModel) , lower("`car'")) & DealerState == "CA"
-		collapse (count) NewCarsSold = flag, by(VehicleYear Source)
+		collapse (count) CarsSold = flag, by(VehicleYear NewUsedIndicator)
 		generate Car = "`car'"
 		save "${WorkingDirs}/Tyler/`car'_counts", replace
 		//add to stack the bars
-		bysort VehicleYear : egen New_Data_stack = sum(NewCarsSold)
+		bysort VehicleYear : egen New_Data_stack = sum(CarsSold)
 		graph twoway ///
 			(bar  New_Data_stack VehicleYear if  NewUsedIndicator == "N") ///
-			(bar  NewCarsSold VehicleYear if  NewUsedIndicator == "U") ///
+			(bar  CarsSold VehicleYear if  NewUsedIndicator == "U") ///
 			,  ///
 			xtitle("Model Year") ytitle("Vehicle Sales") ///
 			legend( label(1 "New Cars") label( 2 "Used Cars")) ///
@@ -137,9 +137,9 @@ foreach car of local carlist {
 		else {
 			local carname "`car'"
 		}
-		keep if PurchasePrice > `min_purchase_price'
+		keep if PurchasePrice > `min_purchase_price' | NewUsedIndicator == "U"
 		keep if strpos(lower(VehicleModel) , lower("`car'")) & DealerState == "CA"
-		collapse (p50) PurchasePrice, by(VehicleYear Source)
+		collapse (p50) PurchasePrice, by(VehicleYear NewUsedIndicator)
 		generate Car = "`car'"
 		save "${WorkingDirs}/Tyler/`car'_Prices", replace
 		//add to stack the bars
@@ -153,7 +153,7 @@ foreach car of local carlist {
 			xtitle("Model Year") ytitle("Median Purchase Price") ///
 			legend( label(1 "New Cars") label( 2 "Used Cars")) ///
 			title("CA `carname' Prices") name("`car'_prices", replace) ///
-			note("note that transaction prices < $`min_purchase_price' have been dropped")
+			note("note that new car transaction prices < $`min_purchase_price' have been dropped")
 
 
 	restore
@@ -168,10 +168,12 @@ restore
 
 //figure out change in comparison cars
 save "${WorkingDirs}/Tyler/testdata", replace
+
+/*
 forvalues i = 1/2 {
 	preserve
 		gen flag = 1
-		keep if strpos(VehicleGroup, "`i'")
+		keep if inlist(Replacement_Vehicle_Tech, "`tech_`i''")
 		collapse (count) VehicleCount = flag , by(ConsolidatedMake Source)
 		replace Source = substr(Source, 1, 3)
 		reshape wide VehicleCount , i(ConsolidatedMake ) j(Source ) string
