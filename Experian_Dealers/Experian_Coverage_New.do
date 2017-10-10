@@ -4,9 +4,15 @@
 <<dd_do: qui >>
 //Set Locals
 
+//set Bandwidth 
+local bandwidth_s = 10
+local bandwidth_m = 20
+local bandwidth_w = 40
+local RD_Cutoff = 36.6
 //Vehicle technologies
 local tech_1 `""Hybrid", "BEV", "PHEV""'
 local tech_2 `""Conventional", "OTHER""'
+
 
 //read in model clean-up directory
 import delimited using "${ExperianCode}/models_after.csv", clear case(preserve) stringcol(_all) varnames(1)
@@ -187,7 +193,7 @@ forvalues i = 1/2 {
 }
 
 
-
+*/
 
 **********CVRP DATA MERGE
 
@@ -292,8 +298,9 @@ replace tract = substr(tract, 1, 10)
 
 
 merge m:1 tract using `tractCES', keep(master match) assert(master match using) nogen
-merge m:1 OwnerZipCode using `maxCES', keep(master match) assert(master match using) nogen
 
+tostring OwnerZipCode, replace
+merge m:1 OwnerZipCode using `maxCES', keep(master match) assert(master match using) nogen
 
 //Restrict to only EFMP eligible districts
 preserve
@@ -307,46 +314,78 @@ preserve
 	save `eligible_AQMD'
 restore
 merge m:1 tract using `eligible_AQMD', keep(matched)
+pause 313
 
+foreach bandwidth_spec in s m w {
+	local bw_H = `RD_Cutoff'+`bandwidth_`bandwidth_spec''
+	local bw_L = `RD_Cutoff'-`bandwidth_`bandwidth_spec''
+	di `bw_H' `bw_L'
+	keep if inlist(Replacement_Vehicle_Tech, "`tech_1'") & inrange(MaxCES , `bw_L',`bw_H') & (PurchasePrice > `min_purchase_price' | NewUsedIndicator == "U")
 
-keep if VehicleGroup == "GROUP 1 - ZEV" & inrange(MaxCES , 16.6,56.6) & PurchasePrice > 10000
-
-binscatter PurchasePrice MaxCES , ///
-	rd(36.6)  n(40) ///
-	title("Uncontrolled RD Plot") ///
-	ytitle("Average Purchase Price") ///
-	xtitle("Highest CES score in Zip") ///
-	note("restricted to Zero Emissions Vehicles with reported sales prices over $10,000") ///
-	name("uncontRD", replace)
+	foreach new_used in New Used {
+		preserve
+			keep if strpos("`new_used'", NewUsedIndicator)
+			di "`new_used'"
+			if "`new_used'" == "New" {
+				local restriction " with reported sales prices over $10,000"
+			}
+			else {
+				local restriction
+			}
+			pause 237
+			binscatter PurchasePrice MaxCES , ///
+				rd(`RD_Cutoff')  n(40) ///
+				title("Uncontrolled RD Plot") ///
+				ytitle("Average Purchase Price") ///
+				xtitle("Highest CES score in Zip") ///
+				note("restricted to `new_used' Zero Emissions Vehicles`restriction'") ///
+				name("uncontRD`new_used'_bw_`bandwidth_spec'", replace)
+		pause 335
+			binscatter PurchasePrice MaxCES , ///
+				rd(`RD_Cutoff')  n(40) controls(CES20Score) ///
+				title("Controlled RD Plot") ///
+				ytitle("Average Purchase Price" "Controlling for tract-level CES") ///
+				xtitle("Highest CES score in Zip") ///
+				note("restricted to `new_used' Zero Emissions Vehicles`restriction'") ///
+				name("contRD`new_used'_bw_`bandwidth_spec'" , replace)
+			
 	
-binscatter PurchasePrice MaxCES , ///
-	rd(36.6)  n(40) controls(CES20Score) ///
-	title("Controlled RD Plot") ///
-	ytitle("Average Purchase Price" "Controlling for tract-level CES") ///
-	xtitle("Highest CES score in Zip") ///
-	note("restricted to Zero Emissions Vehicles with reported sales prices over $10,000") ///
-	name("contRD" , replace)
-	
 
+		restore
+	}
 
+}
 
-
-
-gen Eligible = (MaxCES > 36.6)
+pause 348
+gen Eligible = (MaxCES > `RD_Cutoff')
 tempfile data_for_reg
 save `data_for_reg'
+pause 352
+foreach new_used in New Used {
+	preserve
+		keep if strpos("`new_used'", NewUsedIndicator)
+		
+		if "`new_used'" == "New" {
+			local restriction " with reported sales prices over $10,000"
+		}
+		else {
+			local restriction
+		}
+		
+		gen MaxCES_rnd = round(MaxCES )
 
-gen MaxCES_rnd = round(MaxCES )
+		collapse (count) Transaction_count = PurchasePrice , by(MaxCES_rnd )
 
-collapse (count) Transaction_count = PurchasePrice , by(MaxCES_rnd )
+		graph twoway bar Transaction_count MaxCES_rnd , ///
+			title("Transaction Density by Forcing Variable") ///
+			xtitle("Highest CES score in Zip") ///
+			ytitle("Transaction Count") ///
+			xline(36.6) ///
+			note("restricted to `new_used' Zero Emissions Vehicles`restriction'" "Vertical line at DAC Threshold") ///
+			name("rd_density_plot`new_used'", replace)	
+	restore
+}
 
-graph twoway bar Transaction_count MaxCES_rnd , ///
-	title("Transaction Density by Forcing Variable") ///
-	xtitle("Highest CES score in Zip") ///
-	ytitle("Transaction Count") ///
-	xline(36.6) ///
-	note("restricted to Zero Emissions Vehicles with reported sales prices over $10,000" "Vertical line at DAC Threshold") ///
-	name("rd_density_plot")	
 <</dd_do>>
 ~~~~
 #Update to Experian and CES RDD Groundwork
@@ -363,7 +402,7 @@ between data sets, however I do not observe a clear time trend.
 <<dd_graph: graphname(Leaf_sales) saving(leaf_sales.png) replace height(400) width(500) >>
 
 
-Leaf sales appear particularly voloitile, which is consistant with the actual American sales numbers for that vehicle.  
+Leaf sales appear particularly volitile, which is consistant with the actual American sales numbers for that vehicle.  
 Wikipedia aggregates a variety of sources to give us the following US sales by year of sale (not vehicle model year).
 
 
@@ -399,9 +438,10 @@ we see much improved behavior--there is a rather sharp cutoff at the location we
 
 If car buyers or dealers are able to affect their eligibility, that undermines the validity
 of the RD design.  To assess this, I present a density plot by the forcing variable in the San Joaquin and South Coast air
-quality districts, where the EFMP program was piloted.
+quality districts, where the EFMP program was piloted for new and used cars.
 :
- <<dd_graph: graphname(rd_density_plot) saving(rd_density_plot.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(rd_density_plotNew) saving(rd_density_plotNew.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(rd_density_plotUsed) saving(rd_density_plotUsed.png) replace height(400) width(500) >>
 
 
 ##RD Graphs and Regressions
@@ -412,10 +452,13 @@ quality districts, where the EFMP program was piloted.
 
 As a proof-of-concept, here are two binscatters of average purchase price against the forcing variable.
 One is with a control for the CES of the specific tract, and one is without.  Both are
- restricted to a bandwidth of 20 on either side of the RD threshold of 36.6.
+ restricted to a bandwidth of 20 on either side of the RD threshold of 36.6.  Presented for new and used cars:
  
- <<dd_graph: graphname(contRD) saving(contRD.png) replace height(400) width(500) >>
- <<dd_graph: graphname(uncontRD) saving(uncontRD.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(contRDNew_bw_m) saving(contRDNew_bw_m.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDNew_bw_m) saving(uncontRDNew_bw_m.png) replace height(400) width(500) >>
+
+ <<dd_graph: graphname(contRDUsed_bw_m) saving(contRDUsed.png_bw_m) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDUsed_bw_m) saving(uncontRDUsed.png_bw_m) replace height(400) width(500) >>
 
 
 As a trial run, I present two potential specifications for the RD regression, with minimal 
@@ -425,31 +468,36 @@ controls, with the same bandwidth and restrictions as the above plots. The dummy
 ~~~~
 <<dd_do:nocommands>>
 use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_m',`RD_Cutoff'+`bandwidth_m')
 encode ConsolidatedMake, generate( VehicleMake_code)
 encode ConsolidatedModel, generate( VehicleModel_code)
-regress PurchasePrice Eligible MaxCES
+di "New Cars:"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "U"
 <</dd_do>>
 ~~~~
 Using the tract-level CES score as a covariate:
 
 ~~~~
 <<dd_do:nocommands>>
-
-regress PurchasePrice Eligible MaxCES CES20Score
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "U"
 <</dd_do>>
 ~~~~
 
 Adding in Make/Model controlls
 ~~~~
 <<dd_do:nocommands>>
-
-regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
 <</dd_do>>
 ~~~~
 
-
-These results are borderline statistically significant, and suggest a non-zero pass 
-through, fully accounted for by choice of car make or model.  
 
  Finally, I estimate the OLS version of these regressions. 
 The variable "Zip_Code_Elig" indicates whether the owner lives in a DAC zip code.
@@ -476,4 +524,237 @@ I attempted to assess the overlap of the CVRP and Experian data, but the CVRP da
  does not include VIN, so any assessment will involve matching make, model, zip code, and a 
  rough transaction date. I will attempt to do this, but it won't be as quick as I had hoped a 
  VIN based match would be.
+
+
+
+#L&L List:
+## To assess the possibility of manipulation of the assignment variable, show its distribution.
+
+ <<dd_graph: graphname(rd_density_plotNew) saving(rd_density_plotNew.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(rd_density_plotUsed) saving(rd_density_plotUsed.png) replace height(400) width(500) >>
+
+
+## Present the main RD graph using
+binned local averages. 
+ <<dd_graph: graphname(contRDNew_bw_m) saving(contRDNew_bw_m.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDNew_bw_m) saving(uncontRDNew_bw_m.png) replace height(400) width(500) >>
+
+ <<dd_graph: graphname(contRDUsed_bw_m) saving(contRDUsed_bw_m.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDUsed_bw_m) saving(uncontRDUsed_bw_m.png) replace height(400) width(500) >>
+ 
+## Graph a benchmark polynomial specification
+--Calculated but not graphed.  Graphs will take time, because I can't use the binscatter command.
+~~~
+<<dd_do:nocommands>>
+
+use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_s',`RD_Cutoff'+`bandwidth_s')
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
+di "New Cars:"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+Using the tract-level CES score as a covariate:
+
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES CES20Score if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES CES20Score if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+Adding in Make/Model controlls
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible c.MaxCES##c.MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+<</dd_do>>
+~~~~
+
+## Explore the sensitivity of the results to a range of bandwidths, and a range of orders to the polynomial.
+
+BW = 10
+
+ <<dd_graph: graphname(contRDNew_bw_s) saving(contRDNew_bw_s.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDNew_bw_s) saving(uncontRDNew_bw_s.png) replace height(400) width(500) >>
+
+ <<dd_graph: graphname(contRDUsed_bw_s) saving(contRDUsed_bw_s.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDUsed_bw_s) saving(uncontRDUsed_bw_s.png) replace height(400) width(500) >>
+ 
+BW = 40
+
+ <<dd_graph: graphname(contRDNew_bw_w) saving(contRDNew_bw_w.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDNew_bw_w) saving(uncontRDNew_bw_w.png) replace height(400) width(500) >>
+
+ <<dd_graph: graphname(contRDUsed_bw_w) saving(contRDUsed_bw_w.png) replace height(400) width(500) >>
+ <<dd_graph: graphname(uncontRDUsed_bw_w) saving(uncontRDUsed_bw_w.png) replace height(400) width(500) >>
+ 
+Regression on narrow bandwidth (+/- 10):
+~~~
+<<dd_do:nocommands>>
+
+use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_s',`RD_Cutoff'+`bandwidth_s')
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
+di "New Cars:"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+Using the tract-level CES score as a covariate:
+
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+Adding in Make/Model controlls
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+<</dd_do>>
+~~~~
+
+ 
+Regression on wide bandwidth (+/- 40):
+~~~
+<<dd_do:nocommands>>
+
+use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_w',`RD_Cutoff'+`bandwidth_w')
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
+di "New Cars:"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+Using the tract-level CES score as a covariate:
+
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+Adding in Make/Model controlls
+~~~~
+<<dd_do:nocommands>>
+
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+<</dd_do>>
+~~~~
+
+## Conduct a parallel RD analysis on
+the baseline covariates. 
+
+Gender:
+~~~
+ <<dd_do:nocommands>>
+use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_m',`RD_Cutoff'+`bandwidth_m')
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
+encode Ethnicity, generate(Ethnicity_code)
+generate White_code = Ethnicity == "Non-Hispanic White"
+
+generate male_code = Gender == "M"
+generate female_code = Gender == "F"
+di "New Cars:"
+regress male_code   Eligible MaxCES  if NewUsedIndicator == "N"
+regress female_code   Eligible MaxCES  if NewUsedIndicator == "N"
+di "Used Cars"
+regress male_code   Eligible MaxCES  if NewUsedIndicator == "U"
+regress female_code   Eligible MaxCES  if NewUsedIndicator == "U"
+
+<</dd_do>>
+~~~~
+
+Income
+~~~~
+<<dd_do:nocommands>>
+di "New Cars:"
+regress Income   Eligible MaxCES  if NewUsedIndicator == "N"
+di "Used Cars:"
+regress Income   Eligible MaxCES  if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+Race is sparsely populated, but grouping "Other" and "Null" with all non-whites, we have:
+~~~~
+<<dd_do:nocommands>>
+di "New Cars:"
+regress White_code  Eligible MaxCES  if NewUsedIndicator == "N"
+di "Used Cars:"
+regress White_code  Eligible MaxCES  if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+## Explore the sensitivity of the results
+to the inclusion of baseline covariates.
+
+~~~
+ <<dd_do:nocommands>>
+use `data_for_reg', clear
+quietly keep if inrange(MaxCES ,`RD_Cutoff'-`bandwidth_m',`RD_Cutoff'+`bandwidth_m')
+encode ConsolidatedMake, generate( VehicleMake_code)
+encode ConsolidatedModel, generate( VehicleModel_code)
+encode Ethnicity, generate(Ethnicity_code)
+generate male_code = Gender == "M"
+generate female_code = Gender == "F"
+
+di "New Cars:"
+regress PurchasePrice Eligible MaxCES i.Ethnicity_code male_code female_code Income if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES i.Ethnicity_code male_code female_code Income if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+Using the tract-level CES score as a covariate:
+
+~~~~
+<<dd_do:nocommands>>
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.Ethnicity_code male_code female_code Income if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.Ethnicity_code male_code female_code Income if NewUsedIndicator == "U"
+<</dd_do>>
+~~~~
+
+Adding in Make/Model controlls
+~~~~
+<<dd_do:nocommands>>
+di "New Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.Ethnicity_code male_code female_code Income i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+di "Used Cars"
+regress PurchasePrice Eligible MaxCES CES20Score i.Ethnicity_code male_code female_code Income i.VehicleMake_code i.VehicleModel_code if NewUsedIndicator == "N"
+<</dd_do>>
+~~~~
 
