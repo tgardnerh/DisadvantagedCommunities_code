@@ -42,6 +42,7 @@ merge m:1 VIN XFER_YEAR using `EXP', gen(merge2)
 gen last_own_date = date("20"+string(LAST_OWNERSHIP_DATE ) , "YMD")
 format last_own_date %td
 
+save "$scratch/Merged_EXP_DMV", replace
 codebook last_own_date
 codebook PurchaseDate
 
