@@ -78,8 +78,10 @@ if `Experian_Old_Data' == 1 {
 
 
 if `Experian_New_Data' == 1 {
-//	do ${ExperianCode}/exp_cvg_setup.do
+	do ${ExperianCode}/experian_readin
+	do ${ExperianCode}/exp_cvg_setup.do
 	dyndoc ${ExperianCode}/Experian_Coverage_New.do, saving("$WorkingDirs/Tyler/New_Experian_analysis2.html") replace
 }
 
-	dyndoc ${ExperianCode}/CVRPvsEXP.do, saving("$WorkingDirs/Tyler/CVRPvsEXP.html") replace
+
+
