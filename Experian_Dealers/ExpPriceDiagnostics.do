@@ -205,10 +205,18 @@ foreach model in `topTenModels' {
 	//sales prices
 	preserve
 		keep if VehicleModel == "`model'"	
+		count if New
+		local transaction_count_new = r(N)
+		
+		count if !New
+		local transaction_count_used = r(N)
+		
+		
 		hist PurchasePrice if New , ///
 			title("New Sales of `model'") ///
 			xtitle("Reported Purchase Price") ///
 			ytitle("Density") ///
+			note("`transaction_count_new' new sales") ///
 			name("PriceNew`simplename'", replace)
 	
 	
@@ -216,6 +224,7 @@ foreach model in `topTenModels' {
 			title("Used Sales of `model'") ///
 			xtitle("Reported Purchase Price") ///
 			ytitle("Density") ///
+			note("`transaction_count_used' used sales") ///
 			name("PriceUsed`simplename'", replace)
 			
 		hist PurchasePrice if New & PurchasePrice < 100000, ///
