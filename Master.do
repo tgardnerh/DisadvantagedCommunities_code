@@ -36,51 +36,13 @@ global CVRPDate 20170418
 //add ados
 adopath + "$DisCommCode/CustomPrograms"
 
-
-**Version setting
-global ResultsVersion 20170710
-
-
-************DISADVANTAGED COMMUNTIIES************************
-if `Disadvantaged_Communities' == 1 {
-
-	**Data Prep**
-	do ${DisCommCode}/DataPrep/1_load_disadvantaged_communities
-	do ${DisCommCode}/DataPrep/2_adjacent_disadvantaged_status
-	do ${DisCommCode}/DataPrep/3_combine_cvrp_disadvantaged_status
-	do ${DisCommCode}/DataPrep/4_CensusTract_demographics
-	do ${DisCommCode}/DataPrep/5_ZipCode_demographics
-
-
-
-	**Power Calcs
-	do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs_graphs
-
-	do ${DisCommCode}/PowerCalcs/CES20_disadvantaged_threshold_power_calcs
-	**Summary stats
-	do ${DisCommCode}/cvrp_summary_stats.do
-	do ${DisCommCode}/Border_discontinuity_summstats.do
-
-
-	**Discontinutity stats
-	do ${DisCommCode}/cvrp_CES20_discontinuity_stats.do
-	do ${DisCommCode}/cvrp_CES20_discontinuity_stats_by_zip.do
-	**Disc. maps
-	do ${DisCommCode}/CES20_discontinuity_maps_by_Zip.do
-	do ${DisCommCode}/CES20_discontinuity_maps_by_CensusTract.do
-}
 ****************EXPERIAN DATA**********************************
-if `Experian_Old_Data' == 1 {
-	do ${ExperianCode}/experian_readin
-	do ${ExperianCode}/CBP_readin
-	dyndoc ${ExperianCode}/Experian_Coverage.do, saving("$WorkingDirs/Tyler/Experian_Coverage_restrictedv2.html") replace
-}
 
 
 if `Experian_New_Data' == 1 {
-	do ${ExperianCode}/experian_readin
+	do ${DisCommCode}/data_setup.do
 	do ${ExperianCode}/exp_cvg_setup.do
-	dyndoc ${ExperianCode}/Experian_Coverage_New.do, saving("$WorkingDirs/Tyler/New_Experian_analysis2.html") replace
+	do $ExperianCode/ExpPriceDiagnostics.do
 }
 
 
