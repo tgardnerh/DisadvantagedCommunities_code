@@ -1,0 +1,12 @@
+EFMP_Tech,EFMP_Tech_clean,FUEL_TYPE_Vin,FUEL_TYPE
+BEV,BEV,L - Electric,L
+CONVENTIONAL,Conventional,G - Gasoline,G
+Conventional,Conventional,B - Bio Diesel,B
+Conventional,Conventional,F - Flex Fuel,F
+Conventional,Conventional,D - Diesel,D
+HYbrid,Hybrid,DH - Diesel Hybrid,DH
+Hybrid,Hybrid,Y - Gas/Electric Hybrid ,Y
+PHEV,PHEV,I - Plug-in Hybrid,I
+,OTHER,H - Hydrogen Fuel Cell ,H
+,OTHER,N - Natural Gas,N
+,OTHER,P - Propane,P

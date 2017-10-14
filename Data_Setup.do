@@ -2,7 +2,7 @@
 
 
 //set locals
-include "$DisCommCode/DefineLocals.do"
+include "${DisCommCode}/DefineLocals.do"
 
 
 //read in experian data
@@ -36,7 +36,7 @@ save `newData'
 
 ***Bring in used backfill
  
-import delimited using "$Experian/Sep2017_22kUsedBackfill/UCDavis_Output_20170929.csv", clear case(preserve)
+import delimited using "${Experian}/Sep2017_22kUsedBackfill/UCDavis_Output_20170929.csv", clear case(preserve)
 replace Income = "" if Income == "NULL"
 destring Income, replace
 
@@ -97,9 +97,8 @@ preserve
 	bysort VIN_PATTERN: keep if _N == 1
 	tempfile VinToFuel
 	save `VinToFuel'
-	save "$scratch/VinToFuel", replace
 
-	import delimited using "$scratch/VehicleType_Xwalk.csv", case(preserve) clear varnames(1)
+	import delimited using "${DisCommCode}/VehicleType_Xwalk.csv", case(preserve) clear varnames(1)
 	keep EFMP_Tech_clean FUEL_TYPE
 	rename EFMP_Tech_clean Replacement_Vehicle_Tech
 	duplicates drop
@@ -223,3 +222,6 @@ merge m:1 tract using `CES_tract', keep(match) nogen
 //rename model vars to avoid confusion
 rename (VehicleModel VehicleMake )(RawModel RawMake )
 rename (ConsolidatedModel ConsolidatedMake )(VehicleModel VehicleMake )
+
+save "${WorkingDir}/TransactionData", replace
+
