@@ -127,7 +127,7 @@ foreach model in `topTenModels'  {
 }
 
 
-***Transaction density per capita
+***Transaction density (unadjusted and per capita)
 
 ***Volume across discontinuity, by model
 use  "${WorkingDir}/TransactionData", clear
@@ -156,6 +156,36 @@ foreach new_used in New Used {
 
 	restore
 }
+
+***Volume across discontinuity, by model
+use  "${WorkingDir}/TransactionData", clear
+
+//Density plots
+foreach new_used in New Used {
+	preserve
+		keep if strpos("`new_used'", NewUsedIndicator)
+		
+		
+		gen MaxCES_rnd = round(MaxCES )
+
+		collapse (sum) population (count) Transaction_count = PurchasePrice , by(MaxCES_rnd )
+
+		generate Transaction_percap = Transaction_count/population
+
+		graph twoway bar Transaction_count MaxCES_rnd , ///
+			title("Transaction Count by Forcing Variable, `new_used'") ///
+			xtitle("Highest CES score in Zip") ///
+			ytitle("Transaction Count") ///
+			xline(`RD_Cutoff') ///
+			note("restricted to `new_used' Zero Emissions Vehicles"  "Vertical line at DAC Threshold") ///
+			name("rd_density_gross`new_used'", replace)	
+			
+			graph export "${DisComm}/ResultsOut/20171015/rd_density_gross`new_used'.png", name("rd_density_gross`new_used'") replace
+
+	restore
+}
+
+
 ***Subsidy per transaction
 use  "${WorkingDir}/TransactionData", clear
 

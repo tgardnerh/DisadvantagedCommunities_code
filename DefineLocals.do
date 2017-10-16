@@ -31,7 +31,7 @@ local min_price_Used_wide		0
 
 local max_price_Used_narrow		40000
 local max_price_Used_medium		70000
-local max_price_Used_wide		900000
+local max_price_Used_wide		90000
 
 //Vehicle technologies
 local tech_1 "Hybrid", "BEV", "PHEV"
