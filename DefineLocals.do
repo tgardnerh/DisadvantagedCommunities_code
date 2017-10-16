@@ -12,6 +12,27 @@ local binNumber 20
 
 //lowest price for new car that we call "Reasonable"
 local min_purchase_price 8000
+
+//various "reasonable" specifications:
+//New:
+local min_price_New_narrow  	12000
+local min_price_New_medium		8000
+local min_price_New_wide		0
+
+local max_price_New_narrow		75000
+local max_price_New_medium		95000
+local max_price_New_wide		120000
+
+//used:
+local min_price_Used_narrow 	6000
+local min_price_Used_medium		2000
+local min_price_Used_wide		0
+
+
+local max_price_Used_narrow		40000
+local max_price_Used_medium		70000
+local max_price_Used_wide		900000
+
 //Vehicle technologies
 local tech_1 "Hybrid", "BEV", "PHEV"
 local tech_2 "Conventional", "OTHER"

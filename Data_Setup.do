@@ -223,5 +223,40 @@ merge m:1 tract using `CES_tract', keep(match) nogen
 rename (VehicleModel VehicleMake )(RawModel RawMake )
 rename (ConsolidatedModel ConsolidatedMake )(VehicleModel VehicleMake )
 
+
+//Bring in Zip Level population data
+tempfile before_pop
+save `before_pop'
+
+import delimited using "${Data}/census/ACS popluation, by zcta 2010-15/ACS_15_5YR_B01003_with_ann.csv", case(preserve) varnames(2) stringcols(2) clear
+rename (Id2 EstimateTotal) (OwnerZipCode  population)
+keep OwnerZipCode population
+merge 1:m OwnerZipCode using `before_pop', assert(match master using) keep (match using) nogen
+
+
+//Bring in EFMP aggregate dollars
+
+tempfile before_EFMP
+save `before_EFMP'
+
+import excel using "${Data}/EFMP/EFMP_Data/QRY_WebsiteRawDataThru2017Q2.xlsx", clear firstrow
+
+//drop data that corresponds to before our discussed start date
+generate date = yq(CalendarYear, Quarter)
+
+keep if date > qofd(`StartDate')
+
+collapse (sum) TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL , by(ZipCode)
+rename ZipCode OwnerZipCode
+
+
+tostring OwnerZipCode, replace
+merge 1:m OwnerZipCode using `before_EFMP', assert(match master using) nogen
+
+//fill in missing EFMP levels with zeros
+foreach var in TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL {
+	replace `var' = 0 if missing(`var')
+}
+
 save "${WorkingDir}/TransactionData", replace
 
