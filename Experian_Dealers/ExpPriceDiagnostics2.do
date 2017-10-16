@@ -162,11 +162,11 @@ use  "${WorkingDir}/TransactionData", clear
 //Density plots
 
 gen MaxCES_rnd = round(MaxCES )
+gen CVRP_EFMP_total = EFMPTotalIncentive + CVRP_Rebate
+collapse (max) MaxCES_rnd (first) EFMPTotalIncentive EFMPBaseIncentiveTOTAL EFMPPlusUpIncentiveTOTAL CVRP_Rebate CVRP_EFMP_total (count) Transaction_count = PurchasePrice , by(OwnerZipCode )
+collapse (sum) EFMPTotalIncentive EFMPBaseIncentiveTOTAL EFMPPlusUpIncentiveTOTAL CVRP_Rebate CVRP_EFMP_total Transaction_count  , by(MaxCES_rnd )
 
-collapse (max) MaxCES_rnd (first) TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL (count) Transaction_count = PurchasePrice , by(OwnerZipCode )
-collapse (sum) TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL  Transaction_count  , by(MaxCES_rnd )
-
-foreach incentive in TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL {
+foreach incentive in EFMPTotalIncentive EFMPBase EFMPPlusUp CVRP_Rebate CVRP_EFMP_total {
 	preserve
 		generate incentive_per_transaction = `incentive'/Transaction_count
 	
@@ -175,7 +175,7 @@ foreach incentive in TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL {
 			xtitle("Highest CES score in Zip") ///
 			ytitle("Subsidy per Transaction") ///
 			xline(`RD_Cutoff') ///
-			note("restricted to `new_used' Zero Emissions Vehicles" "gaps indicate CCES bins with fewer than 500 transactions" "Vertical line at DAC Threshold") ///
+			note("restricted to `new_used' Zero Emissions Vehicles" "gaps indicate CES bins with fewer than 500 transactions" "Vertical line at DAC Threshold") ///
 			name("`incentive'_per_trans", replace)	
 			
 			graph export "${DisComm}/ResultsOut/20171015/`incentive'_per_trans.png", name("`incentive'_per_trans") replace

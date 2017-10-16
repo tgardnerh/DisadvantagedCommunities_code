@@ -251,12 +251,34 @@ rename ZipCode OwnerZipCode
 
 
 tostring OwnerZipCode, replace
-merge 1:m OwnerZipCode using `before_EFMP', assert(match master using) nogen
+merge 1:m OwnerZipCode using `before_EFMP', assert(match master using) keep( match using) nogen
 
 //fill in missing EFMP levels with zeros
 foreach var in TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL {
 	replace `var' = 0 if missing(`var')
+	rename `var' EFMP`var'
+	
 }
+
+***Bring in CVRP data
+
+tempfile before_CVRP
+save `before_CVRP'
+
+use "${Data}/CVRP Incentives/Data/Out/CVRP_list_20170418.dta", clear
+
+//drop data that corresponds to before our discussed start date
+keep if ApplicationDate >= `StartDate'
+
+
+collapse(sum) RebateDollars, by(ZIP)
+
+rename ZIP OwnerZipCode
+rename RebateDollars CVRP_Rebate
+merge 1:m OwnerZipCode using `before_CVRP', assert(match master using) keep( match using) nogen
+
+
+
 
 save "${WorkingDir}/TransactionData", replace
 
