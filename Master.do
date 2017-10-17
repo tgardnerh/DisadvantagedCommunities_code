@@ -8,6 +8,14 @@ set more off
 if "`c(username)'" == "tylerhoppenfeld" {
 	global Dropbox "/Users/tylerhoppenfeld/Dropbox (Personal)"
 }
+else if  "`c(username)'" == "Rapson_AirHD" {
+	global Dropbox "/Users/Rapson_AirHD/Dropbox"
+
+}
+else if  "`c(username)'" == "dsrapson" {
+	global Dropbox "C:/Users/dsrapson/Dropbox"
+
+}
 else {
 	display in red "user `c(username)' is not in code!"
 	STOP
