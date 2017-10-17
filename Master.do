@@ -34,7 +34,6 @@ adopath + "${DisCommCode}/CustomPrograms"
 
 
 do "${DisCommCode}/data_setup.do"
-//do ${ExperianCode}/ExpPriceDiagnostics.do
 do "${ExperianCode}/ExpPriceDiagnostics2.do"
 
 
