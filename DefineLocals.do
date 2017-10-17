@@ -37,7 +37,7 @@ local max_price_Used_wide		90000
 local tech_1 "Hybrid", "BEV", "PHEV"
 local tech_2 "Conventional", "OTHER"
 //Period of interest
-local StartDate = date("March 1 2016", "MDY")
+local StartDate = date("March 1 2010", "MDY")
 
 //characters to ignore in destring
 local ignore_chars NA

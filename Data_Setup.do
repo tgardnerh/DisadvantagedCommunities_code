@@ -61,7 +61,6 @@ append using `newData'
 
 
 ***Append in Old data
-use "$WorkingDir/scratch", clear
 tostring ReportingPeriod DealerZipCode OwnerZipCode, replace
 append using "${DisComm}/Data/Old_Experian.dta"
 replace Source = "Old Data" if missing(Source)
@@ -155,8 +154,9 @@ restore
 tostring OwnerCensusBlockGroup , format(%12.0f) gen(tract)
 replace tract = substr(tract, 1, 10)
 
-merge m:1 tract using `eligible_AQMD', keep(matched) nogen
-
+merge m:1 tract using `eligible_AQMD', keep(matched master)
+gen eligibleAQMD=_merge==3
+drop _merge
 
 //Fetch CES score data and zip level data
 preserve
