@@ -4,6 +4,8 @@
 //set locals
 include "${DisCommCode}/DefineLocals.do"
 
+//Parse old experian data:
+do "${DisCommCode}/Experian_readin_old.do
 
 //read in experian data
 import delimited using "${Data}/Experian/July2017_Experian300k/UCDavis_Output_201601_201704.csv", case(preserve) clear
@@ -57,8 +59,15 @@ destring Age, replace ignore("U")
 
 append using `newData'
 
+
+***Append in Old data
+use "$WorkingDir/scratch", clear
+tostring ReportingPeriod DealerZipCode OwnerZipCode, replace
+append using "${DisComm}/Data/Old_Experian.dta"
+replace Source = "Old Data" if missing(Source)
+
 **Generate flags
-gen LeaseDum = LeaseIndicator=="L"
+generate LeaseDum = LeaseIndicator=="L"
 egen ever_leased = max(LeaseDum), by(VIN)
 tab ever_leased
 
@@ -280,5 +289,5 @@ merge 1:m OwnerZipCode using `before_CVRP', assert(match master using) keep( mat
 
 
 
-save "${WorkingDir}/TransactionData", replace
+save "${DisComm}/Data/TransactionData.dta", replace
 

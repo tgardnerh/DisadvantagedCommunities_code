@@ -3,7 +3,7 @@
 //Set Locals
 include "$DisCommCode/DefineLocals.do"
 
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data/TransactionData", clear
 
 keep if inlist(Replacement_Vehicle_Tech, "`tech_1'") & inrange(MaxCES , `RD_Cutoff'-`bandwidth_m',`RD_Cutoff'+`bandwidth_m')
 
@@ -42,7 +42,7 @@ foreach price_truncate in narrow medium wide {
 
 
 **Composition of Models change at discontinuity:
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data/TransactionData", clear
 
 //Density plots
 foreach new_used in New Used {
@@ -72,7 +72,7 @@ foreach new_used in New Used {
 
 
 **New/Used composition at discontinuity:
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 
 //Density plots
 foreach model in `topTenModels' "All Cars" {
@@ -102,7 +102,7 @@ foreach model in `topTenModels' "All Cars" {
 
 
 ***Volume across discontinuity, by model
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 //Density plots
 foreach model in `topTenModels'  {
 	preserve
@@ -130,7 +130,7 @@ foreach model in `topTenModels'  {
 ***Transaction density (unadjusted and per capita)
 
 ***Volume across discontinuity, by model
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 
 //Density plots
 foreach new_used in New Used {
@@ -158,7 +158,7 @@ foreach new_used in New Used {
 }
 
 ***Volume across discontinuity, by model
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 
 //Density plots
 foreach new_used in New Used {
@@ -187,7 +187,7 @@ foreach new_used in New Used {
 
 
 ***Subsidy per transaction
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 
 //Density plots
 
@@ -213,7 +213,7 @@ foreach incentive in EFMPTotalIncentive EFMPBase EFMPPlusUp CVRP_Rebate CVRP_EFM
 }
 
 //Price statistics for each model
-use  "${WorkingDir}/TransactionData", clear
+use  "${DisComm}/Data//TransactionData", clear
 
 matrix mstats = J(1,7,.)
 matrix colnames mstats = p10 p25 p50 p75 p90 mean count

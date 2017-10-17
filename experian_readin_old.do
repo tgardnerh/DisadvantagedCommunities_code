@@ -17,10 +17,6 @@ clear all
 version 14.1
 set more off
 
-global Dropbox "I:\Personal Files\Jim\Dropbox"
-global Experian "$Dropbox/Erich_Dave_Projects/Data/Experian"
-
-log using "$Experian/Log/experian_readin.txt", text replace
 
 
 #delim ;
@@ -57,7 +53,7 @@ infix
 	str Gender 711-711
 	str Income 712-719
 	str Ethnicity 720-780
-	using "$Experian\CARB_FINAL_OUTPUT_HHIncome_V2.txt", clear;
+	using "$Experian/CARB_FINAL_OUTPUT_HHIncome_V2.txt", clear;
 
 #delim cr
 
@@ -153,35 +149,14 @@ destring PurchasePrice VehicleYear OdometerReading Income, replace
 **Age=="U" implies unknown. It can be missing. 
 destring Age, replace ignore("U")
 
-gen LeaseDum = LeaseIndicator=="L"
-egen ever_leased = max(LeaseDum), by(VIN)
-tab ever_leased
 
-duplicates tag VIN, gen(times_sold)
-replace times_sold = times_sold+1
-
-gen byte CAdummy = DealerState=="CA"
-gen byte Hispanic = strpos(Ethnicity,"Hisp")>0 & strpos(Ethnicity,"Non")==0  if Ethnicity~=""
-gen byte AfrAmer = strpos(Ethnicity,"Afr")>0 if Ethnicity~=""
-gen byte White = strpos(Ethnicity,"Non")>0 if Ethnicity~=""
-gen byte Asian = strpos(Ethnicity,"Asi")>0 if Ethnicity~=""
-gen byte Other = strpos(Ethnicity,"Oth")>0 if Ethnicity~=""
-
-gen byte no_missing_demo = Ethnicity~="" & Age~=. & Income~=. & Gender~=""
-
-gen byte Male = Gender=="M" if Gender~=""
-gen byte Female = Gender=="F" if Gender~=""
-
-gen byte Fleet = FleetIndicator=="F"
-gen byte New = NewUsedIndicator=="N"
 
 
 compress
 
 sort VIN PurchaseDate
-save "$Experian/DataOut/Experian_Data.dta", replace
+save "${DisComm}/Data/Old_Experian.dta", replace
 
 
 
-log close
 
