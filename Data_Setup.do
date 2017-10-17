@@ -243,7 +243,11 @@ keep OwnerZipCode population
 merge 1:m OwnerZipCode using `before_pop', assert(match master using) keep (match using) nogen
 
 
+
+
 //Bring in EFMP aggregate dollars
+	//Generate quarter variable for merge on quarter
+	gen Quarter = quarter(PurchaseDate)
 
 tempfile before_EFMP
 save `before_EFMP'
@@ -255,12 +259,14 @@ generate date = yq(CalendarYear, Quarter)
 
 keep if date > qofd(`StartDate')
 
-collapse (sum) TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL , by(ZipCode)
+collapse (sum) TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL , by(ZipCode Quarter)
 rename ZipCode OwnerZipCode
 
-
 tostring OwnerZipCode, replace
-merge 1:m OwnerZipCode using `before_EFMP', assert(match master using) keep( match using) nogen
+drop if OwnerZipCode=="."
+
+
+merge 1:m OwnerZipCode Quarter using `before_EFMP', assert(match master using) keep( match using) nogen
 
 //fill in missing EFMP levels with zeros
 foreach var in TotalIncentive BaseIncentiveTOTAL PlusUpIncentiveTOTAL {
@@ -279,12 +285,12 @@ use "${Data}/CVRP Incentives/Data/Out/CVRP_list_20170418.dta", clear
 //drop data that corresponds to before our discussed start date
 keep if ApplicationDate >= `StartDate'
 
-
-collapse(sum) RebateDollars, by(ZIP)
+gen Quarter = quarter(ApplicationDate)
+collapse(sum) RebateDollars, by(ZIP Quarter)
 
 rename ZIP OwnerZipCode
 rename RebateDollars CVRP_Rebate
-merge 1:m OwnerZipCode using `before_CVRP', assert(match master using) keep( match using) nogen
+merge 1:m OwnerZipCode Quarter using `before_CVRP', assert(match master using) keep( match using) nogen
 
 
 
