@@ -24,9 +24,11 @@ else {
 
 global Experian 	"$Dropbox/Erich_Dave_Projects/Data/Experian"
 global DisComm 		"$Dropbox/Erich_Dave_Projects/Project_DisadvantagedCommunities"
+global Code 		"${DisComm}/Code"
 global DisCommCode 	"${DisComm}/Code/CVRP_EFMP_EXP_repo"
 global ExperianCode "${DisCommCode}/Experian_Dealers"
 global Data			"${Dropbox}/Erich_Dave_Projects/Data"
+global DisCommData 	"${DisComm}/Data"
 global MapData 		"${Data}/mapfiles"
 global MapFiles 	"${Data}/mapfiles"
 global WorkingDir 	"${DisComm}/Data/UnstableWorking"
